@@ -130,7 +130,7 @@ public class TetrisController : MonoBehaviour
                             System.Random rnd = new System.Random();
                             currentPiece = nextPiece;
                             nextPiece = rnd.Next(0, 6);
-                            
+
                             // set the preview to next piece
                             switch (nextPiece)
                             {
@@ -160,32 +160,7 @@ public class TetrisController : MonoBehaviour
                             }
 
                             // drop the tetris
-                            switch (currentPiece)
-                            {
-                                case 0:
-                                    Instantiate(Resources.Load("Prefabs/Tetris0", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                case 1:
-                                    Instantiate(Resources.Load("Prefabs/Tetris1", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                case 2:
-                                    Instantiate(Resources.Load("Prefabs/Tetris2", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                case 3:
-                                    Instantiate(Resources.Load("Prefabs/Tetris3", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                case 4:
-                                    Instantiate(Resources.Load("Prefabs/Tetris4", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                case 5:
-                                    Instantiate(Resources.Load("Prefabs/Tetris5", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                case 6:
-                                    Instantiate(Resources.Load("Prefabs/Tetris6", typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            GameObject tetris = Instantiate(Resources.Load("Prefabs/Tetris" + currentPiece, typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation) as GameObject;
                             // move to the origin
                             transform.position = originPos;
                         }
