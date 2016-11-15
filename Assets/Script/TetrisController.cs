@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
+using System.Collections.ObjectModel;
 
 public class TetrisController : MonoBehaviour
 {
@@ -161,83 +162,22 @@ public class TetrisController : MonoBehaviour
 
                             // drop the tetris
                             GameObject tetris = Instantiate(Resources.Load("Prefabs/Tetris" + currentPiece, typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation) as GameObject;
-                            // move to the origin
+                            // move the tetris preview back it's origin position
                             transform.position = originPos;
+
+                            //// store all the child squares and tetris in the game object pool square_pool
+                            //Transform[] tetrisChildren = tetris.GetComponentsInChildren<Transform>();
+                            ////GameObject[] tetrisChildren = tetris.GetComponentsInChildren<GameObject>();
+                            //foreach (Transform square in tetrisChildren)
+                            //{
+                            //    SquareList.square_pool.Add(square.gameObject);
+                            //    Collection<GameObject> ls = SquareList.square_pool;
+                            //}
                         }
                     }
                 }
             }
         }
-
-        //// PC platform
-        //else
-        //{
-        //    //if (Input.touchCount > 0)
-        //    //{
-        //        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //        if (Physics.Raycast(ray))
-        //        {
-
-        //            if (Input.GetMouseButtonDown(0))
-        //            {
-        //                pos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1));
-        //                transform.position = new Vector3(pos.x, pos.y + 1.0f, pos.z);
-        //                Debug.Log(pos.ToString());
-        //            }
-        //            else if (Input.GetMouseButtonUp(0))
-        //            {
-        //                Debug.Log("Mouse Position: " + Input.mousePosition.x);
-        //                //Vector3 worldpoint = Camera.main.WorldToScreenPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1));
-        //                //Debug.Log("World position: " + worldpoint.ToString());
-        //                if (Input.mousePosition.x > ControllerBorder)
-        //                {
-        //                    // rotate the tetris
-        //                    transform.Rotate(0, 0, 90f);
-        //                    // reset the preview
-        //                    transform.position = originPos;
-        //                    Debug.Log(originPos.ToString());
-        //                }
-        //                else
-        //                {
-        //                    // summon the Tetris on desired X position
-        //                    Instantiate(Square, SummonTetris.position, SummonTetris.rotation);
-        //                    // change the tetris to a random sprite
-        //                    System.Random rnd = new System.Random();
-        //                    nextPiece = rnd.Next(0, 6);
-        //                    switch (nextPiece)
-        //                    {
-        //                        case 0:
-        //                            spriteRenderer.sprite = Tetris0;
-        //                            break;
-        //                        case 1:
-        //                            spriteRenderer.sprite = Tetris1;
-        //                            break;
-        //                        case 2:
-        //                            spriteRenderer.sprite = Tetris2;
-        //                            break;
-        //                        case 3:
-        //                            spriteRenderer.sprite = Tetris3;
-        //                            break;
-        //                        case 4:
-        //                            spriteRenderer.sprite = Tetris4;
-        //                            break;
-        //                        case 5:
-        //                            spriteRenderer.sprite = Tetris5;
-        //                            break;
-        //                        case 6:
-        //                            spriteRenderer.sprite = Tetris6;
-        //                            break;
-        //                        default:
-        //                            break;
-        //                    }
-        //                    Debug.Log("Sprite: " + spriteRenderer.sprite.ToString());
-        //                    // move to the origin
-        //                    transform.position = originPos;
-        //                }
-        //            }
-        //        }
-        //    //}
-        //}
     }
 
     //void OnCollisionEnter(Collision col)
