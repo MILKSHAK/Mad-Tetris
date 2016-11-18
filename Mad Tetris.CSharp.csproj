@@ -76,7 +76,6 @@
     <Compile Include="Assets\Script\GameManager.cs" />
     <Compile Include="Assets\Script\SquareController.cs" />
     <Compile Include="Assets\Script\SquareList.cs" />
-    <Compile Include="Assets\Script\TetrisColor.cs" />
     <Compile Include="Assets\Script\TetrisController.cs" />
     <Compile Include="Assets\Script\TetrisInitial.cs" />
     <Compile Include="Assets\UniExtensions\Async\MagicThread.cs" />

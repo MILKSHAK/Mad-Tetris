@@ -12,26 +12,18 @@ public class GameManager : MonoBehaviour {
     public Text ScoreText;
     private int Score;
     private float screenHeight;
-    public Camera mainCamera;
 
-    private Collection<GameObject> allSquares;
+    private int linesOfRows = 24;
+    private float container_Wight;
+    private float container_Height;
+    private float containerX;
+    private float containerY;
+    private float containerX_Left;
+    private float containerX_Right;
+    private float containerY_Top;
+    private float containerY_Bottom;
+    private float heightOfARow;
 
-    // total 12 rows in the screen
-    private Collection<GameObject> row1 = new Collection<GameObject>();
-    private Collection<GameObject> row2 = new Collection<GameObject>();
-    private Collection<GameObject> row3 = new Collection<GameObject>();
-    private Collection<GameObject> row4 = new Collection<GameObject>();
-    private Collection<GameObject> row5 = new Collection<GameObject>();
-    private Collection<GameObject> row6 = new Collection<GameObject>();
-    private Collection<GameObject> row7 = new Collection<GameObject>();
-    private Collection<GameObject> row8 = new Collection<GameObject>();
-    private Collection<GameObject> row9 = new Collection<GameObject>();
-    private Collection<GameObject> row10 = new Collection<GameObject>();
-    private Collection<GameObject> row11 = new Collection<GameObject>();
-    private Collection<GameObject> row12 = new Collection<GameObject>();
-
-    // Collection that hold all the rows
-    private Collection<Collection<GameObject>> rows;
 
     private bool complete = true;
     // Use this for initialization
@@ -39,300 +31,77 @@ public class GameManager : MonoBehaviour {
         Score = 10;
         ScoreText.text = "Score: " + Score;
         screenHeight = Screen.height;
-
-        //mainCamera = Instantiate(Camera.main);
-        //mainCamera.GetComponent<AudioListener>().enabled = false;
-
-        //// add all rows in the collection
-        //rows.Add(row1);
-        //rows.Add(row2);
-        //rows.Add(row3);
-        //rows.Add(row4);
-        //rows.Add(row5);
-        //rows.Add(row6);
-        //rows.Add(row7);
-        //rows.Add(row8);
-        //rows.Add(row9);
-        //rows.Add(row10);
-        //rows.Add(row11);
-        //rows.Add(row12);
-
-        // repeating call the calculation thread function
-        InvokeRepeating("CalculationThread", 1.0f, 1.0f);
-    }
-
-    void CalculationThread()
-    {
-        Debug.Log("CalculationThread");
-        // get all sqaures before new thread
         
-        // start a new thread to do the calculation
-        //ThreadStart job = new ThreadStart(CheckOut);
-        //Thread thread = new Thread(job);
-        //thread.Start();
+        GameObject container = GameObject.Find("Container");
+        container_Wight = container.GetComponent<SpriteRenderer>().bounds.size.x;
+        container_Height = container.GetComponent<SpriteRenderer>().bounds.size.y;
+        containerX = container.transform.position.x;
+        containerY = container.transform.position.y;
+        containerX_Left = containerX - (0.5f * container_Wight);
+        containerX_Right = containerX + (0.5f * container_Wight);
+        containerY_Top = containerY + 0.5f * container_Height;
+        containerY_Bottom = containerY - 0.5f * container_Height;
+        heightOfARow = container_Height / linesOfRows;
 
-        // make sure start one thread at a time
-        if (true)
-        {
-            complete = false;
-            //allSquares = new Collection<GameObject>(GameObject.FindGameObjectsWithTag("Square")); 
-            allSquares = SquareList.square_pool;
-            
-            MagicThread.Start(CheckOut());
-        }       
+        InvokeRepeating("ScanRows", 1.0f, 1.0f);
     }
-    // use to loop through all the squares and see if there is a fulfilled row
-    IEnumerator CheckOut()
-    {
-        //yield return new ForegroundTask();
-        Debug.Log("CheckOut");
-        // check if the tetrises has filled a row
-        //=========================================================================
-        // get all squares in the scene
-        int counter = 0;
-        // check all squares' Y coordinate, and sort them to different rows
-        foreach (GameObject square in allSquares)
-        {
-            Debug.Log("counter: " + counter);
-            counter++;
-            // totally 12 rows in the screen
-            Collection<GameObject> row = new Collection<GameObject>();
 
-            //float squareYY = square.transform.position.y;
-            yield return new BackgroundTask();
-            float squareY = Camera.main.WorldToScreenPoint(new Vector3(square.transform.position.x, square.transform.position.y, 1)).y;
-            yield return new ForegroundTask();
-            //float squareY = mainCamera.WorldToScreenPoint(new Vector3(1, 1, 1)).y;
-            //float squareY = square.transform.position.y;
-            Debug.Log("Suqare: " + square.ToString());
-            Debug.Log("Suqare.Y: " + squareY);
-            Debug.Log("ScreenHeight: " + screenHeight);
-            // 1st row
-            if (squareY > 0 &&
-                squareY < screenHeight / 12)
+    void ScanRows()
+    {   
+        Collection<GameObject> row = new Collection<GameObject>();
+        for (int i = 0; i < linesOfRows - 1; i++)
+        {
+            float rowFixed = 0.2f;
+            float rowBottom = containerY_Bottom + heightOfARow * (float)i + rowFixed;
+            float rowTop = containerY_Bottom + heightOfARow * (float)(i + 1) - rowFixed;
+            Collider2D[] colliders = Physics2D.OverlapAreaAll(new Vector2(containerX_Left, rowBottom),
+                                    new Vector2(containerX_Right, rowTop));
+            // check if there are 16 squares in a row
+            if(colliders.Length >= 16)
             {
-                row1.Add(square);
-            }
-            // 2nd row
-            else if (squareY > screenHeight / 12 &&
-                squareY < screenHeight * 2 / 12)
-            {
-                row2.Add(square);
-            }
-            // 3rd row
-            else if (squareY > screenHeight * 2 / 12 &&
-                squareY < screenHeight * 3 / 12)
-            {
-                row3.Add(square);
-            }
-            // 4th row
-            else if (squareY > screenHeight * 3 / 12 &&
-                squareY < screenHeight * 4 / 12)
-            {
-                row4.Add(square);
-            }
-            // 5th row
-            else if (squareY > screenHeight * 4 / 12 &&
-                squareY < screenHeight * 5 / 12)
-            {
-                row5.Add(square);
-            }
-            // 6th row
-            else if (squareY > screenHeight * 5 / 12 &&
-                squareY < screenHeight * 6 / 12)
-            {
-                row6.Add(square);
-            }
-            // 7th row
-            else if (squareY > screenHeight * 6 / 12 &&
-                squareY < screenHeight * 7 / 12)
-            {
-                row7.Add(square);
-            }
-            // 8th row
-            else if (squareY > screenHeight * 7 / 12 &&
-                squareY < screenHeight * 8 / 12)
-            {
-                row8.Add(square);
-            }
-            // 9th row
-            else if (squareY > screenHeight * 8 / 12 &&
-                squareY < screenHeight * 9 / 12)
-            {
-                row9.Add(square);
-            }
-            // 10th row
-            else if (squareY > screenHeight * 9 / 12 &&
-                squareY < screenHeight * 10 / 12)
-            {
-                row10.Add(square);
-            }
-            // 11st row
-            else if (squareY > screenHeight * 10 / 12 &&
-                squareY < screenHeight * 11 / 12)
-            {
-                row11.Add(square);
-            }
-            // 12nd row
-            else if (squareY > screenHeight * 11 / 12 &&
-                squareY < screenHeight)
-            {
-                row12.Add(square);
+                foreach(Collider2D c in colliders)
+                {
+                    // the square size is (0.1, 0.1)
+                    // dont ask me why
+                    GameObject square = c.gameObject;
+                    if (square.CompareTag("Square"))
+                    {
+                        row.Add(square);
+                    }
+                }
+                if (row.Count >= 16) CheckRow(row);
             }
         }
-        Debug.Log("row1 count: " + row1.Count);
-        Debug.Log("row2 count: " + row2.Count);
-        Debug.Log("row3 count: " + row3.Count);
-        Debug.Log("row12 count: " + row12.Count);
-
-        //sortSquares(allSquares);
-
-        // if they did, plus score by one
-        // display score on GUI
-
-        // clear all rows collection
-        clearRows();
-        complete = true;
-        yield return new ForegroundTask();
-    }
-    // use to loop through all the squares and see if there is a fulfilled row
-    //void CheckOut ()
-    //{
-    //    Debug.Log("CheckOut");
-    //    // check if the tetrises has filled a row
-    //    //=========================================================================
-    //    // get all squares in the scene
-    //    complete = false;
-    //    sortSquares(allSquares);
-
-    //    // if they did, plus score by one
-    //    // display score on GUI
-
-    //    // clear all rows collection
-    //    clearRows();
-    //}
-
-    void sortSquares (Collection<GameObject> allSquares)
-    {
-        //int counter = 0;
-        //// check all squares' Y coordinate, and sort them to different rows
-        //foreach (GameObject square in allSquares)
-        //{
-        //    Debug.Log("counter: " + counter);
-        //    counter++;
-        //    // totally 12 rows in the screen
-        //    Collection<GameObject> row = new Collection<GameObject>();
-
-        //    float squareYY = square.transform.position.y;
-        //    float squareY = Camera.main.WorldToScreenPoint(new Vector3(square.transform.position.x, square.transform.position.y, 1)).y;
-        //    //float squareY = mainCamera.WorldToScreenPoint(new Vector3(1, 1, 1)).y;
-        //    //float squareY = square.transform.position.y;
-        //    Debug.Log("Suqare: " + square.ToString());
-        //    Debug.Log("Suqare.Y: " + squareY);
-        //    Debug.Log("ScreenHeight: " + screenHeight);
-        //    // 1st row
-        //    if (squareY > 0 &&
-        //        squareY < screenHeight / 12)
-        //    {
-        //        row1.Add(square);
-        //    }
-        //    // 2nd row
-        //    else if (squareY > screenHeight / 12 &&
-        //        squareY < screenHeight * 2 / 12)
-        //    {
-        //        row2.Add(square);
-        //    }
-        //    // 3rd row
-        //    else if (squareY > screenHeight * 2 / 12 &&
-        //        squareY < screenHeight * 3 / 12)
-        //    {
-        //        row3.Add(square);
-        //    }
-        //    // 4th row
-        //    else if (squareY > screenHeight * 3 / 12 &&
-        //        squareY < screenHeight * 4 / 12)
-        //    {
-        //        row4.Add(square);
-        //    }
-        //    // 5th row
-        //    else if (squareY > screenHeight * 4 / 12 &&
-        //        squareY < screenHeight * 5 / 12)
-        //    {
-        //        row5.Add(square);
-        //    }
-        //    // 6th row
-        //    else if (squareY > screenHeight * 5 / 12 &&
-        //        squareY < screenHeight * 6 / 12)
-        //    {
-        //        row6.Add(square);
-        //    }
-        //    // 7th row
-        //    else if (squareY > screenHeight * 6 / 12 &&
-        //        squareY < screenHeight * 7 / 12)
-        //    {
-        //        row7.Add(square);
-        //    }
-        //    // 8th row
-        //    else if (squareY > screenHeight * 7 / 12 &&
-        //        squareY < screenHeight * 8 / 12)
-        //    {
-        //        row8.Add(square);
-        //    }
-        //    // 9th row
-        //    else if (squareY > screenHeight * 8 / 12 &&
-        //        squareY < screenHeight * 9 / 12)
-        //    {
-        //        row9.Add(square);
-        //    }
-        //    // 10th row
-        //    else if (squareY > screenHeight * 9 / 12 &&
-        //        squareY < screenHeight * 10 / 12)
-        //    {
-        //        row10.Add(square);
-        //    }
-        //    // 11st row
-        //    else if (squareY > screenHeight * 10 / 12 &&
-        //        squareY < screenHeight * 11 / 12)
-        //    {
-        //        row11.Add(square);
-        //    }
-        //    // 12nd row
-        //    else if (squareY > screenHeight * 11 / 12 &&
-        //        squareY < screenHeight)
-        //    {
-        //        row12.Add(square);
-        //    }
-        //}
-        //Debug.Log("row1 count: " + row1.Count);
-        //Debug.Log("row2 count: " + row2.Count);
-        //Debug.Log("row3 count: " + row3.Count);
-        //Debug.Log("row12 count: " + row12.Count);
     }
 
-    // clear all rows after loop through all the squares
-    void clearRows ()
+    // check if the row lined up
+    void CheckRow(Collection<GameObject> row)
     {
-        row1.Clear();
-        row2.Clear();
-        row3.Clear();
-        row4.Clear();
-        row5.Clear();
-        row6.Clear();
-        row7.Clear();
-        row8.Clear();
-        row9.Clear();
-        row10.Clear();
-        row11.Clear();
-        row12.Clear();
+        int count = 0; 
+        foreach (GameObject square in row)
+        {
+            // see if all squares are lined up straight
+            float _rotation = square.transform.rotation.z;
+            if (_rotation > 0.1 || _rotation < -0.1)
+            {
+                //return;
+            }
+            else count++;
+        }
+        if(count >= 16)
+        {
+            RemoveRow(row);
+        }
     }
 
-    void removeRow (Collection<GameObject> row)
+    // clear the full row of every squares
+    void RemoveRow(Collection<GameObject> row)
     {
-        // remove the row of squares
-    }
-
-    void cleanEmptyTetris (GameObject[] allTetris)
-    {
-        // remove the empty tetris prefab
+        foreach (GameObject square in row)
+        {
+            Destroy(square);
+            Score++;
+        }
+        ScoreText.text = "Score: " + Score;
     }
 }
