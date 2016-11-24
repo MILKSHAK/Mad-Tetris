@@ -8,6 +8,7 @@ public class TetrisController : MonoBehaviour
 {
     private Vector3 ControlRegion;
     private float ControllerBorder;
+    private SpriteRenderer spriteRenderer;
     private Vector3 originPos;
     private int nextPiece;          // Random generated when a piece is droped 
     private int currentPiece;       // stored when next piece generated
@@ -21,11 +22,6 @@ public class TetrisController : MonoBehaviour
     private bool hitWall;
     private bool isMove;
 
-    private SpriteRenderer spriteRenderer;
-
-    public GameObject Square;
-    public Transform SummonTetris;
-
     // preset of all type of tetris
     //=====================================
     public Sprite Sprite0;
@@ -36,17 +32,17 @@ public class TetrisController : MonoBehaviour
     public Sprite Sprite5;
     public Sprite Sprite6;
 
+    public GameManager gameManager;
+    public Assets.ProgressBars.Scripts.GuiProgressBar progressBar;
 
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>(); // we are accessing the SpriteRenderer that is attached to the Gameobject
-        originPos = GameObject.Find("TetrisPreview").transform.position;
-
         GameObject controlPanel = GameObject.Find("ControlPanel");
         ControlRegion = Camera.main.WorldToScreenPoint(new Vector3(controlPanel.transform.position.x - controlPanel.GetComponent<SpriteRenderer>().bounds.size.x / 2,
                                                         controlPanel.transform.position.y, 1));
         ControllerBorder = ControlRegion.x;
-
+        originPos = GameObject.Find("TetrisPreview").transform.position;
         //Define the preview detect region
         Vector3 originSize = spriteRenderer.bounds.size;
         previewRegionLX = Camera.main.WorldToScreenPoint(new Vector3(originPos.x - originSize.x / 2, 1, 1)).x;
@@ -54,8 +50,9 @@ public class TetrisController : MonoBehaviour
         previewRegionTY = Camera.main.WorldToScreenPoint(new Vector3(1, originPos.y - originSize.y / 2, 1)).y;
         previewRegionBY = Camera.main.WorldToScreenPoint(new Vector3(1, originPos.y + originSize.y / 2, 1)).y;
 
-        // the current piece is Tetris5 on default
+        // the current piece & next piece is Tetris5 on default
         currentPiece = 5;
+        nextPiece = 5;
     }
 
     void Update()
@@ -97,8 +94,6 @@ public class TetrisController : MonoBehaviour
                         transform.Rotate(0, 0, 90f);
                         // reset the preview location
                         transform.position = originPos;
-                        // move to the origin
-                        transform.position = originPos;
                     }
                 }
                 else if (isMove)
@@ -126,7 +121,8 @@ public class TetrisController : MonoBehaviour
                         // drop the tetris
                         else
                         {
-                            
+                            // update the charge bar for every drop
+                            gameManager.addEnergy(0.1f);
                             // change the tetris to a random sprite
                             System.Random rnd = new System.Random();
                             currentPiece = nextPiece;
@@ -164,29 +160,11 @@ public class TetrisController : MonoBehaviour
                             GameObject tetris = Instantiate(Resources.Load("Prefabs/Tetris" + currentPiece, typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation) as GameObject;
                             // move the tetris preview back it's origin position
                             transform.position = originPos;
-
-                            //// store all the child squares and tetris in the game object pool square_pool
-                            //Transform[] tetrisChildren = tetris.GetComponentsInChildren<Transform>();
-                            ////GameObject[] tetrisChildren = tetris.GetComponentsInChildren<GameObject>();
-                            //foreach (Transform square in tetrisChildren)
-                            //{
-                            //    SquareList.square_pool.Add(square.gameObject);
-                            //    Collection<GameObject> ls = SquareList.square_pool;
-                            //}
                         }
                     }
                 }
             }
         }
     }
-
-    //void OnCollisionEnter(Collision col)
-    //{
-    //    if (col.gameObject.name == "Walls")
-    //    {
-    //        hitWall = true;
-    //        Debug.Log("Hit Wall: " + originPos.ToString());
-    //    }
-    //}
 }
 
