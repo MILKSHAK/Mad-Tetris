@@ -7,10 +7,12 @@ public class GameManager : MonoBehaviour {
 
     //public Text ScoreText;
     public GameObject ScoreText;
+    public ParticleSystem BombParticle;
+    public ParticleSystem LazerParticle;
+    public float TimeIncreament;
+
     private int Score;
     private float screenHeight;
-
-    private int linesOfRows = 24;
     private float container_Wight;
     private float container_Height;
     private float containerX;
@@ -20,19 +22,20 @@ public class GameManager : MonoBehaviour {
     private float containerY_Top;
     private float containerY_Bottom;
     private float heightOfARow;
-
     private Assets.ProgressBars.Scripts.GuiProgressBar progressBar;
-    public ParticleSystem BombParticle;
-    public ParticleSystem LazerParticle;
     private bool bombReady;
     private bool lazerReady;
     private float energyBar;
-
+    private int linesOfRows = 12;
+    private int loseCountDown = 0;
 
     private bool complete = true;
 
     void Update()
     {
+        // update progressBar base on increament value
+        progressBar.Value += Time.deltaTime * TimeIncreament;
+        
         // if the progress bar is half charged
         if (energyBar >= 1.0f)
         {
@@ -74,6 +77,9 @@ public class GameManager : MonoBehaviour {
         heightOfARow = container_Height / linesOfRows;
 
         progressBar = GetComponentInChildren<Assets.ProgressBars.Scripts.GuiProgressBar>();
+        progressBar.Value = 0.0f;
+
+        TimeIncreament = 0.01f;
         energyBar = 0.00f;
 
         BombParticle.Play();
@@ -82,7 +88,40 @@ public class GameManager : MonoBehaviour {
         LazerParticle.Play();
         BombParticle.enableEmission = false;
 
-        InvokeRepeating("ScanRows", 1.0f, 1.0f);
+        InvokeRepeating("ScanRows", 0.1f, 1.0f);
+        InvokeRepeating("CheckGameOver", 1.0f, 0.1f);
+    }
+
+    void CheckGameOver()
+    {
+        loseCountDown++;
+        Collider2D[] colliders = Physics2D.OverlapAreaAll(new Vector2(containerX_Left, 4.4f),
+                                    new Vector2(containerX_Right, 4.6f));
+        if(colliders.Length > 0)
+        {
+            loseCountDown++;
+            //foreach (Collider2D c in colliders)
+            //{
+            //    GameObject square = c.gameObject;
+            //    if (square.CompareTag("Square"))
+            //    {
+                    
+            //    }
+            //}
+        }
+        else
+        {
+            loseCountDown = 0;
+        }
+        
+        if (loseCountDown >= 10) GameOver();
+    }
+
+    void GameOver()
+    {
+        // game over
+        Debug.Log("Game Over!");
+        Time.timeScale = 0;
     }
 
     void ScanRows()
@@ -90,7 +129,7 @@ public class GameManager : MonoBehaviour {
         Collection<GameObject> row = new Collection<GameObject>();
         for (int i = 0; i < linesOfRows - 1; i++)
         {
-            float rowFixed = 0.2f;
+            float rowFixed = 0.3f;
             float rowBottom = containerY_Bottom + heightOfARow * (float)i + rowFixed;
             float rowTop = containerY_Bottom + heightOfARow * (float)(i + 1) - rowFixed;
             Collider2D[] colliders = Physics2D.OverlapAreaAll(new Vector2(containerX_Left, rowBottom),
@@ -128,7 +167,7 @@ public class GameManager : MonoBehaviour {
         {
             // see if all squares are lined up straight
             float _rotation = square.transform.rotation.z;
-            if (_rotation > 0.1 || _rotation < -0.1)
+            if (_rotation > 0.3 || _rotation < -0.3)
             {
                 //return;
             }
@@ -178,5 +217,10 @@ public class GameManager : MonoBehaviour {
     public void costEnergy(float energy)
     {
         energyBar -= energy;
+    }
+
+    public void speedUp()
+    {
+        TimeIncreament += 0.002f;
     }
 }

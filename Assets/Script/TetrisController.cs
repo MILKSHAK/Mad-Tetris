@@ -58,6 +58,13 @@ public class TetrisController : MonoBehaviour
     void Update()
     {
         MoveUpdate();
+
+        float containerTop = 4.0f;
+        if (progressBar.Value >= 1.0f)
+        {
+            // drop the tetris automatically when time is up
+            dropTetris(new Vector3(0, containerTop, 1));
+        } 
     }
 
     void MoveUpdate()
@@ -121,50 +128,62 @@ public class TetrisController : MonoBehaviour
                         // drop the tetris
                         else
                         {
+                            Vector3 fingerPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1));
+                            dropTetris(fingerPos);
                             // update the charge bar for every drop
                             gameManager.addEnergy(0.1f);
-                            // change the tetris to a random sprite
-                            System.Random rnd = new System.Random();
-                            currentPiece = nextPiece;
-                            nextPiece = rnd.Next(0, 6);
-
-                            // set the preview to next piece
-                            switch (nextPiece)
-                            {
-                                case 0:
-                                    spriteRenderer.sprite = Sprite0;
-                                    break;
-                                case 1:
-                                    spriteRenderer.sprite = Sprite1;
-                                    break;
-                                case 2:
-                                    spriteRenderer.sprite = Sprite2;
-                                    break;
-                                case 3:
-                                    spriteRenderer.sprite = Sprite3;
-                                    break;
-                                case 4:
-                                    spriteRenderer.sprite = Sprite4;
-                                    break;
-                                case 5:
-                                    spriteRenderer.sprite = Sprite5;
-                                    break;
-                                case 6:
-                                    spriteRenderer.sprite = Sprite6;
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            // drop the tetris
-                            GameObject tetris = Instantiate(Resources.Load("Prefabs/Tetris" + currentPiece, typeof(GameObject)), Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1)), transform.rotation) as GameObject;
-                            // move the tetris preview back it's origin position
-                            transform.position = originPos;
                         }
                     }
                 }
             }
         }
+    }
+
+    // drop the piece at certain position
+    void dropTetris(Vector3 position)
+    {
+        // speed up for each drop
+        gameManager.speedUp();
+        // clear the progress bar
+        progressBar.Value = 0f;
+
+        // change the tetris to a random sprite
+        System.Random rnd = new System.Random();
+        currentPiece = nextPiece;
+        nextPiece = rnd.Next(0, 6);
+
+        // set the preview to next piece
+        switch (nextPiece)
+        {
+            case 0:
+                spriteRenderer.sprite = Sprite0;
+                break;
+            case 1:
+                spriteRenderer.sprite = Sprite1;
+                break;
+            case 2:
+                spriteRenderer.sprite = Sprite2;
+                break;
+            case 3:
+                spriteRenderer.sprite = Sprite3;
+                break;
+            case 4:
+                spriteRenderer.sprite = Sprite4;
+                break;
+            case 5:
+                spriteRenderer.sprite = Sprite5;
+                break;
+            case 6:
+                spriteRenderer.sprite = Sprite6;
+                break;
+            default:
+                break;
+        }
+
+        // drop the tetris
+        GameObject tetris = Instantiate(Resources.Load("Prefabs/Tetris" + currentPiece, typeof(GameObject)), position, transform.rotation) as GameObject;
+        // move the tetris preview back it's origin position
+        transform.position = originPos;
     }
 }
 
