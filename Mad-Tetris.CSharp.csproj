@@ -82,8 +82,11 @@
     <Compile Include="Assets\Script\Bomb.cs" />
     <Compile Include="Assets\Script\BombManager.cs" />
     <Compile Include="Assets\Script\GameManager.cs" />
+    <Compile Include="Assets\Script\GameOverLanguage.cs" />
+    <Compile Include="Assets\Script\Language.cs" />
     <Compile Include="Assets\Script\Lazer.cs" />
     <Compile Include="Assets\Script\LazerManager.cs" />
+    <Compile Include="Assets\Script\MenuLanguage.cs" />
     <Compile Include="Assets\Script\MenuManager.cs" />
     <Compile Include="Assets\Script\SquareController.cs" />
     <Compile Include="Assets\Script\TetrisController.cs" />

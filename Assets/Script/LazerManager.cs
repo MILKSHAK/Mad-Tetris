@@ -46,7 +46,7 @@ public class LazerManager : MonoBehaviour {
                         // the lazer cost 50% of the progress bar
                         gameManager.costEnergy(0.5f);
                         GetComponent<ParticleSystem>().enableEmission = false;
-                        // fire the lazer
+                        // fire the lazer from the bottom of the container
                         Instantiate(Resources.Load("Prefabs/Lazer", typeof(GameObject)), new Vector3(-2.56f, -4.37f, 0), transform.rotation);
                         Debug.Log("Fire the lazer");
                     }

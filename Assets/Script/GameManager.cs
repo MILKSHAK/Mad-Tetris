@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections.ObjectModel;
 using System.Collections;
+
 
 public class GameManager : MonoBehaviour {
 
@@ -10,8 +12,14 @@ public class GameManager : MonoBehaviour {
     public ParticleSystem BombParticle;
     public ParticleSystem LazerParticle;
     public float TimeIncreament;
+    public GameObject GameOverCavas;
+    public GameObject RankCavas;
+    public AudioClip RowClear1;
+    public AudioClip RowClear2;
+    public AudioClip RowClear3;
 
     private int Score;
+    private string ScoreLanguage;
     private float screenHeight;
     private float container_Wight;
     private float container_Height;
@@ -28,6 +36,7 @@ public class GameManager : MonoBehaviour {
     private float energyBar;
     private int linesOfRows = 12;
     private int loseCountDown = 0;
+    private float energyAddup = 0.1f;
 
     private bool complete = true;
 
@@ -62,7 +71,18 @@ public class GameManager : MonoBehaviour {
     // Use this for initialization
     void Start () {
         Score = 0;
-        ScoreText.GetComponent<TextMesh>().text = "Score: " + Score;
+        switch (Language.GetLanguage())
+        {
+            case Language.Chinese:
+                ScoreLanguage = "得分： ";
+                break;
+            case Language.English:
+                ScoreLanguage = "Score： ";
+                break;
+            default:
+                break;
+        }
+        ScoreText.GetComponent<TextMesh>().text = ScoreLanguage + Score;
         screenHeight = Screen.height;
         
         GameObject container = GameObject.Find("Container");
@@ -100,27 +120,21 @@ public class GameManager : MonoBehaviour {
         if(colliders.Length > 0)
         {
             loseCountDown++;
-            //foreach (Collider2D c in colliders)
-            //{
-            //    GameObject square = c.gameObject;
-            //    if (square.CompareTag("Square"))
-            //    {
-                    
-            //    }
-            //}
         }
         else
         {
             loseCountDown = 0;
         }
         
-        if (loseCountDown >= 10) GameOver();
+        if (loseCountDown >= 20) GameOver();
     }
 
     void GameOver()
     {
         // game over
         Debug.Log("Game Over!");
+
+        GameOverCavas.SetActive(true);
         Time.timeScale = 0;
     }
 
@@ -135,7 +149,7 @@ public class GameManager : MonoBehaviour {
             Collider2D[] colliders = Physics2D.OverlapAreaAll(new Vector2(containerX_Left, rowBottom),
                                     new Vector2(containerX_Right, rowTop));
             // check if there are 16 squares in a row
-            if(colliders.Length >= 16)
+            if(colliders.Length >= 16 && colliders.Length < 32)
             {
                 foreach(Collider2D c in colliders)
                 {
@@ -166,12 +180,13 @@ public class GameManager : MonoBehaviour {
         foreach (GameObject square in row)
         {
             // see if all squares are lined up straight
-            float _rotation = square.transform.rotation.z;
-            if (_rotation > 0.3 || _rotation < -0.3)
+            //float _rotation = square.transform.rotation.z;
+            int _rotation = (int) square.transform.eulerAngles.z;
+            int _errorTolerance = _rotation % 90;
+            if (_errorTolerance <= 5 || _errorTolerance >= 85)
             {
-                //return;
-            }
-            else count++;
+                count++;
+            }  
         }
         if(count >= 16)
         {
@@ -182,15 +197,52 @@ public class GameManager : MonoBehaviour {
     // clear the full row of every squares
     void RemoveRow(Collection<GameObject> row)
     {
+        // change the tetris to a random sprite
+        System.Random rnd = new System.Random();
+        int rndSound = rnd.Next(1, 3);
+        AudioSource audioSource = GetComponent<AudioSource>();
+        switch (rndSound)
+        {
+            case 1:
+                audioSource.clip = RowClear1;
+                break;
+            case 2:
+                audioSource.clip = RowClear2;
+                break;
+            case 3:
+                audioSource.clip = RowClear3;
+                break;
+            default: break;
+        }
+        if (!audioSource.isPlaying) audioSource.Play();
+
         foreach (GameObject square in row)
         {
             // destroy the square
             Destroy(square);
             Score++;
         }
-        ScoreText.GetComponent<TextMesh>().text = "Score: " + Score;
-        //Assets.ProgressBars.Scripts.GuiProgressBar progressBar = GetComponentInChildren<Assets.ProgressBars.Scripts.GuiProgressBar>();
-        if(energyBar <= 1.0f) energyBar += 0.1f;
+        ScoreText.GetComponent<TextMesh>().text = ScoreLanguage + Score;
+        if(energyBar <= 1.0f) energyBar += energyAddup;
+    }
+
+    // called when confirm button is clicked
+    public void seeRank()
+    {
+        GameOverCavas.SetActive(false);
+        Time.timeScale = 1;
+        SceneManager.LoadScene("menu");
+        //RankCavas.SetActive(true);
+    }
+
+    // called when the play again button is clicked
+    public void playAgain()
+    {
+        GameOverCavas.SetActive(false);
+        //SceneManager.UnloadScene("main");
+        Time.timeScale = 1;
+        SceneManager.LoadScene("main");
+        //RankCavas.SetActive(true);
     }
 
     public bool isBombReady()
@@ -209,18 +261,32 @@ public class GameManager : MonoBehaviour {
         ScoreText.GetComponent<TextMesh>().text = "Score: " + Score;
     }
 
-    public void addEnergy(float energy)
+    public void addEnergy()
     {
-        if(energyBar <= 1.0f) energyBar += energy;
+        if(energyBar <= 1.0f) energyBar += energyAddup;
+        GameObject.Find("BombControl").GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, energyBar / 1.0f);
+        GameObject.Find("LazerControl").GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, energyBar / 0.5f);
     }
 
     public void costEnergy(float energy)
     {
         energyBar -= energy;
+        GameObject.Find("BombControl").GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, energyBar / 1.0f);
+        GameObject.Find("LazerControl").GetComponent<SpriteRenderer>().color = new Color(1.0f, 1.0f, 1.0f, energyBar / 0.5f);
+    }
+
+    public float getEnergy()
+    {
+        return energyBar;
     }
 
     public void speedUp()
     {
         TimeIncreament += 0.002f;
+    }
+
+    public void powerOverhead()
+    {
+        energyAddup /= 1.01f;
     }
 }

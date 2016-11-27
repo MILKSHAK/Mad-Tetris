@@ -19,9 +19,10 @@ public class TetrisController : MonoBehaviour
     private float previewRegionTY;
     private float previewRegionBY;
 
-    private bool hitWall;
     private bool isMove;
+    private float containerTop = 4.0f;
 
+    private AudioSource audioSource;
     // preset of all type of tetris
     //=====================================
     public Sprite Sprite0;
@@ -34,6 +35,8 @@ public class TetrisController : MonoBehaviour
 
     public GameManager gameManager;
     public Assets.ProgressBars.Scripts.GuiProgressBar progressBar;
+    public AudioClip ClickSound;
+    public AudioClip DropSound;
 
     void Start()
     {
@@ -53,13 +56,14 @@ public class TetrisController : MonoBehaviour
         // the current piece & next piece is Tetris5 on default
         currentPiece = 5;
         nextPiece = 5;
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
         MoveUpdate();
 
-        float containerTop = 4.0f;
         if (progressBar.Value >= 1.0f)
         {
             // drop the tetris automatically when time is up
@@ -80,9 +84,13 @@ public class TetrisController : MonoBehaviour
                     Input.GetTouch(0).position.y >= previewRegionTY &&
                     Input.GetTouch(0).position.y <= previewRegionBY)
                 {
+                    
                     // when click on the preview region, set isMove to true
                     if (Input.GetTouch(0).phase == TouchPhase.Began)
                     {
+                        // play click sound effect
+                        audioSource.clip = ClickSound;
+                        audioSource.Play();
                         isMove = true;
                     }
                     // move the tetris with finger
@@ -108,10 +116,7 @@ public class TetrisController : MonoBehaviour
                     // move the tetris with finger
                     if (Input.GetTouch(0).phase == TouchPhase.Moved)
                     {
-                        if (!hitWall)
-                        {
-                            transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1));
-                        }
+                        transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1));
                     }
                     // set isMove to false when the drag ended
                     else if (Input.GetTouch(0).phase == TouchPhase.Ended)
@@ -128,10 +133,10 @@ public class TetrisController : MonoBehaviour
                         // drop the tetris
                         else
                         {
-                            Vector3 fingerPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y, 1));
+                            Vector3 fingerPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.GetTouch(0).position.x, Screen.height, 1));
                             dropTetris(fingerPos);
                             // update the charge bar for every drop
-                            gameManager.addEnergy(0.1f);
+                            gameManager.addEnergy();
                         }
                     }
                 }
@@ -142,8 +147,14 @@ public class TetrisController : MonoBehaviour
     // drop the piece at certain position
     void dropTetris(Vector3 position)
     {
+        // play sound effect
+        audioSource.clip = DropSound;
+        audioSource.Play();
+
         // speed up for each drop
         gameManager.speedUp();
+        // lower the energy add up for each drop
+        gameManager.powerOverhead();
         // clear the progress bar
         progressBar.Value = 0f;
 

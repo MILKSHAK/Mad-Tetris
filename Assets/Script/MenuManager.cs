@@ -4,14 +4,19 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
+    public AudioClip SelectSound;
 	
 	public void OnGameStart()
     {
         // start the game scene
         SceneManager.LoadScene("main");
+
+        GetComponent<AudioSource>().clip = SelectSound;
+        GetComponent<AudioSource>().Play();
+    }
+
+    public void OnQuit()
+    {
+        Application.Quit();
     }
 }
