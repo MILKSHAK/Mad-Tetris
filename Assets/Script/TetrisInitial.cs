@@ -17,9 +17,6 @@ public class TetrisInitial : MonoBehaviour {
         foreach (SpriteRenderer child in GetComponentsInChildren<SpriteRenderer>())
         {
             child.color = rndColor;
-            // store all the child squares and tetris in the game object pool square_pool
-            SquareList.square_pool.Add(child.gameObject);
-            Collection<GameObject> ls = SquareList.square_pool;
         }
     }
 }
