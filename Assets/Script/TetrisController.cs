@@ -12,6 +12,7 @@ public class TetrisController : MonoBehaviour
     private Vector3 originPos;
     private int nextPiece;          // Random generated when a piece is droped 
     private int currentPiece;       // stored when next piece generated
+    private bool tetrisReady = true;
 
     //===========Define the preview detect region==========================
     private float previewRegionLX;
@@ -76,7 +77,7 @@ public class TetrisController : MonoBehaviour
         // Android Platform
         if (Application.platform == RuntimePlatform.Android || true)
         {
-            if (Input.touchCount > 0)
+            if (Input.touchCount > 0 && tetrisReady)
             {
                 // determine if the touch on the preview object
                 if (Input.GetTouch(0).position.x <= previewRegionRX &&
@@ -195,6 +196,16 @@ public class TetrisController : MonoBehaviour
         GameObject tetris = Instantiate(Resources.Load("Prefabs/Tetris" + currentPiece, typeof(GameObject)), position, transform.rotation) as GameObject;
         // move the tetris preview back it's origin position
         transform.position = originPos;
+        // delay for 1 second after each drop
+        tetrisReady = false;
+        StartCoroutine("waitForOneSecond");
+        
+    }
+
+    IEnumerator waitForOneSecond()
+    {
+        yield return new WaitForSeconds(0.5f);
+        tetrisReady = true;
     }
 }
 
