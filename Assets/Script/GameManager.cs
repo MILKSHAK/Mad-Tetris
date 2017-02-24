@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour {
             loseCountDown = 0;
         }
         
-        if (loseCountDown >= 20) GameOver();
+        if (loseCountDown >= 30) GameOver();
     }
 
     void GameOver()
@@ -258,7 +258,17 @@ public class GameManager : MonoBehaviour {
     public void addScore(int add)
     {
         Score += add;
-        ScoreText.GetComponent<TextMesh>().text = "Score: " + Score;
+        switch (Language.GetLanguage())
+        {
+            case Language.Chinese:
+                ScoreLanguage = "得分： " + Score;
+                break;
+            case Language.English:
+                ScoreLanguage = "Score: " + Score;
+                break;
+            default:
+                break;
+        }
     }
 
     public void addEnergy()
@@ -282,7 +292,7 @@ public class GameManager : MonoBehaviour {
 
     public void speedUp()
     {
-        TimeIncreament += 0.002f;
+        TimeIncreament += 0.005f;
     }
 
     public void powerOverhead()
